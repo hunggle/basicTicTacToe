@@ -2,14 +2,8 @@
 #include <stdlib.h>
 #include <conio.h>
 
-
-char board[10] = {'-','1','2','3','4','5','6','7','8','9'};
-
-//Line 20
-char isAWin();
-//Line 51
-void printBoard();
-//Line 65
+char isAWin(int n, char board[]);
+void printBoard(int n, char board[]);
 void runGame();
 
 int main() {
@@ -17,57 +11,130 @@ int main() {
     return 0;
 }
 
-char isAWin() {
+char isAWin(int n, char board[]) {
+    int i, h, v, d;
     //Horizontal
-    if (board[1] == board [2] && board[2] == board[3])
-        return 'w';
-    else if (board[4] == board [5] && board[5] == board[6])
-        return 'w';
-    else if (board[7] == board [8] && board[8] == board[9])
-        return 'w';
-    //Vertical
-    else if (board[1] == board [4] && board[4] == board[7])
-        return 'w';
-    else if (board[2] == board [5] && board[5] == board[8])
-        return 'w';
-    else if (board[3] == board [6] && board[6] == board[9])
-        return 'w';
-    //Diagonal
-    else if (board[1] == board [5] && board[5] == board[9])
-        return 'w';
-    else if (board[3] == board [5] && board[5] == board[7])
-        return 'w';
-    //Draw
-    else if (board[1] != '1' && board[2] != '2' && board[3] != '3' 
-    && board[4] != '4' && board[5] != '5' && board[6] != '6' 
-    && board[7] != '7' && board[8] != '8' && board[9] != '9')
-        return 'd';
-    else
+    for (i = 1; i <= ((n*n) - (n-1)); i += n) {
+        for (h = 1; h <= (n-1); h++) {
+            if (board[i] == board[i+h]) 
+                continue;
+            else
+                break;
+        }
 
+        if (h == n)
+            return 'w';
+    }
+    //Vertical
+    for (i = 1; i <= n; i++) {
+        for (v = n; v <= (n * (n-1)); v += n) {
+            if (board[i] == board[i+v]) 
+                continue;
+            else
+                break;
+        }
+
+        if (v == (n*n))
+            return 'w';
+    }
+    //Diagonal
+    for (i = 1; i <= n; i += (n-1)) {
+        if (i == 1) {
+            for (d = (n+1); d <= ((n*n) - 1); d += (n+1)) {
+                if (board[i] == board[i+d])
+                    continue;
+                else
+                    break;
+            }
+            
+            if (d == (n * (n+1)))
+                return 'w';
+                
+        } else {
+            for (d = (n-1); d <= ((n * (n-2)) + 1); d += (n-1)) {
+                if (board[i] == board[i+d])
+                    continue;
+                else
+                    break;
+            }
+            
+            if (d == (n * (n-1)))
+                return 'w';
+        }
+    }
     //Unfinished game
-    return '-';
+    for (i = 1; i <= (n*n); i ++) {
+        if (board[i] == 'X' || board[i] == 'O')
+            continue;
+        else
+            return '-';
+    }
+    //Draw
+    return 'd';
 }
 
-void printBoard() {
+void printBoard(int n, char board[]) {
     system ("cls");
-    printf ("\n\n   Tic Tac Toe \n\n\n");
-    printf ("     |     |     \n");
-    printf ("  %c  |  %c  |  %c  \n", board[1], board[2], board[3]);
-    printf ("_____|_____|_____\n");
-    printf ("     |     |     \n");
-    printf ("  %c  |  %c  |  %c  \n", board[4], board[5], board[6]);
-    printf ("_____|_____|_____\n");
-    printf ("     |     |     \n");
-    printf ("  %c  |  %c  |  %c  \n", board[7], board[8], board[9]);
-    printf ("     |     |     \n\n");
+    printf ("\n\n");
+    for (int blankspace = 1; blankspace <= ((n-1 + n*5 - 11) / 2); blankspace++) {
+        printf (" ");
+    }
+    printf ("Tic Tac Toe\n\n\n");
+    for (int i = 1; i <= (n*3); i++) {
+        for (int j = 1; j <= n; j++) {
+            if (i % 3 == 0 && (i+1) <= (n*3)) {
+                if (j < n)
+                    printf ("_____|");
+                else
+                    printf ("_____\n");
+            } else if ((i+1) % 3 == 0) {
+                static int k = 1;
+                if (k > (n*n))
+                    k -= (n*n);
+                if (j < n) {
+                    printf ("  %c  |", board[k]);
+                    k++;
+                } else {
+                    printf ("  %c  \n", board[k]);
+                    k++;
+                }
+            } else {
+                if (j < n)
+                    printf ("     |");
+                else
+                    printf ("     \n");
+            }
+        }
+    }
 }
 
 void runGame () {
     int side = 1, choice;
     char winner, XAndO;
+    int n;
+
+    printf ("Please choose the size of the Board with odd numbers only (3, 5, 7, ...): ");
+    scanf ("%d", &n);
+    while ((n % 2) == 0 || n < 3) {
+        printf ("Invalid option!\n");
+        printf ("Please choose another size: ");
+        scanf ("%d", &n);
+    }
+
+    char board[(n*n) + 1];
+    for (int i = 0; i <= (n*n); i++) {
+        if (i == 0)
+            board[i] = '-';
+        else if ((i-9) == 0)
+            board[i] = '9'; 
+        else if (i > 9)
+            board[i] = (i%10) + '0';
+        else
+            board[i] = i + '0';
+    }
     
     do {
-        printBoard();
+        printBoard(n, board);
         
         if (side % 2)
             side = 1;
@@ -82,36 +149,23 @@ void runGame () {
         else
             XAndO = 'O';
         
-        if (choice == 1 && board[1] == '1')
-            board[1] = XAndO;
-        else if (choice == 2 && board[2] == '2')
-            board[2] = XAndO;
-        else if (choice == 3 && board[3] == '3')
-            board[3] = XAndO;
-        else if (choice == 4 && board[4] == '4')
-            board[4] = XAndO;
-        else if (choice == 5 && board[5] == '5')
-            board[5] = XAndO;
-        else if (choice == 6 && board[6] == '6')
-            board[6] = XAndO;
-        else if (choice == 7 && board[7] == '7')
-            board[7] = XAndO;
-        else if (choice == 8 && board[8] == '8')
-            board[8] = XAndO;
-        else if (choice == 9 && board[9] == '9')
-            board[9] = XAndO;
-        else {
-            printf ("Invalid option!\n");
-            printf ("Please choose another choice: ");
-            side--;
+        for (int i = 1; i <= (n*n); i++) {
+            if(choice == i && board[i] != 'X' && board[i] != 'O') {
+                board[i] = XAndO;
+                break;
+            } else if (i == n*n) {
+                printf ("Invalid option!\n");
+                printf ("Please choose another choice: ");
+                side--;
+            }
         }
         
-        winner = isAWin();
+        winner = isAWin(n, board);
         side++;
         getch();
     } while (winner == '-');
     
-    printBoard();
+    printBoard(n, board);
     
     if (winner == 'w')
         printf ("Congratulations! Player%d won!\n",--side);
